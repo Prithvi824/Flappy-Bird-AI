@@ -197,7 +197,10 @@ def get_new_window_cords() -> Tuple[int, int]:
     new_x = WINDOW_X + 300
 
     # if new_x is greater than screen width, reset it to 10
-    if new_x > 1600:
+    if new_x > 1600 and WINDOW_Y >= 550:
+        new_x = 10
+        new_y = 10
+    elif new_x > 1600:
         new_x = 10
         new_y = WINDOW_Y + 550
     else:
@@ -301,7 +304,6 @@ def run_multiple_gnomes(
     Returns:
         None
     """
-    global WINDOW_X, WINDOW_Y
 
     # create a dict with gid: gnome
     gnomes_dict = {gid: gnome for gid, gnome in gnomes}
@@ -377,14 +379,23 @@ if __name__ == "__main__":
     # get the local directory
     local_dir = os.path.dirname(__file__)
 
+    # get the path to the config file
+    config_path = os.path.join(local_dir, args.config)
+
+    # create a neat config
+    neat_config = neat.Config(
+        neat.DefaultGenome,
+        neat.DefaultReproduction,
+        neat.DefaultSpeciesSet,
+        neat.DefaultStagnation,
+        config_path,
+    )
+
     # run the NEAT algorithm
     if args.mode == RunMode.TRAIN_MODE.value:
 
-        # get the path to the config file
-        config_path = os.path.join(local_dir, args.config)
-
         # run the NEAT algorithm
-        run(config_path, args.generations)
+        run(neat_config, args.generations)
 
     elif args.mode == RunMode.PLAY_MODE.value:
 
@@ -395,18 +406,6 @@ if __name__ == "__main__":
         if not os.path.exists(winner_path):
             print("Winner not found")
             exit()
-
-        # get the path to the config file
-        config_path = os.path.join(local_dir, args.config)
-
-        # create a neat config
-        neat_config = neat.Config(
-            neat.DefaultGenome,
-            neat.DefaultReproduction,
-            neat.DefaultSpeciesSet,
-            neat.DefaultStagnation,
-            config_path,
-        )
 
         try:
 
